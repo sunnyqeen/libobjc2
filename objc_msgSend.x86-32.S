@@ -3,6 +3,9 @@
 #define SHIFT_OFFSET   4
 #define DATA_OFFSET    12
 #define SLOT_OFFSET    16
+
+#define slowMsgLookup CDECL(slowMsgLookup)
+
 .macro MSGSEND receiver, sel, fpret
 	.cfi_startproc                        
 	movl  \receiver(%esp), %eax
