@@ -234,13 +234,15 @@ if (ENABLE_OBJCXX)
 endif (ENABLE_OBJCXX)
 
 
-
+if(WIN32)
+	set(FORCE_PTHREAD_DLL "pthread.dll")
+else(WIN32)
 # Currently, we actually need pthreads, but we should use the platform's native
 # threading implementation (we do for everything except thread-local storage)
-set(CMAKE_THREAD_PREFER_PTHREAD)
-include(FindThreads)
-set(objc_LINK_FLAGS "${objc_LINK_FLAGS} ${CMAKE_THREAD_LIBS_INIT}")
-
+	set(CMAKE_THREAD_PREFER_PTHREAD)
+	include(FindThreads)
+	set(objc_LINK_FLAGS "${objc_LINK_FLAGS} ${CMAKE_THREAD_LIBS_INIT}")
+endif(WIN32)
 
 
 add_library(objc SHARED ${libobjc_C_SRCS} ${libobjc_ASM_SRCS} ${libobjc_OBJC_SRCS} ${libobjc_CXX_SRCS})
@@ -285,6 +287,16 @@ if (APPLE)
 	set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -Wl,-undefined,dynamic_lookup")
 	set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -Wl,-undefined,dynamic_lookup")
 endif ()
+
+if(FORCE_PTHREAD_DLL)
+	message(STATUS "Forcing pthread.dll")
+	# Note: if you omit '-l' below, cmake will strip the extension (.dll)
+	# which is critical in this case: we are linking pthread.dll.a. Also note
+	# somehow the order of libs is important for clang, so adding pthread to
+	# link flags doesn't do the job for some reason.
+	target_link_libraries(objc "-l${FORCE_PTHREAD_DLL}")
+	target_link_libraries(objcxx "-l${FORCE_PTHREAD_DLL}")
+endif(FORCE_PTHREAD_DLL)
 
 #
 # Installation
