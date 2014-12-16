@@ -327,6 +327,7 @@ Protocol*__unsafe_unretained* class_copyProtocolList(Class cls, unsigned int *ou
 id class_createInstance(Class cls, size_t extraBytes)
 {
 	CHECK_ARG(cls);
+#ifndef WIN32
 	if (sizeof(id) == 4)
 	{
 		if (cls == SmallObjectClasses[0])
@@ -344,6 +345,7 @@ id class_createInstance(Class cls, size_t extraBytes)
 			}
 		}
 	}
+#endif
 
 	if (Nil == cls)	{ return nil; }
 	id obj = gc->allocate_class(cls, extraBytes);

@@ -8,8 +8,10 @@
 	movl  \receiver(%esp), %eax
 	test  %eax, %eax                      # If the receiver is nil
 	jz    4f                              # return nil
+#ifndef WIN32
 	test  $SMALLOBJ_MASK, %eax            # Check if the receiver is a small object
 	jnz   6f                              # Get the small object class
+#endif
 
 	mov   (%eax), %eax                    # Load the class
 1:                                        # classLoaded
@@ -74,6 +76,7 @@
 
 
 	jmp   *%eax
+#ifndef WIN32
 6:                                       # smallObject:
 	push  %ebx                           # Save old %ebx
 	calll 7f
@@ -85,6 +88,7 @@
 	mov   (%eax), %eax
 	popl  %ebx
 	jmp   1b 
+#endif
 	.cfi_endproc
 .endm
 .globl CDECL(objc_msgSend_fpret)
