@@ -284,7 +284,7 @@ if (APPLE)
 	set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -Wl,-undefined,dynamic_lookup")
 endif ()
 
-if (WIN32)
+if (MINGW)
 	if (CMAKE_THREAD_LIBS_INIT STREQUAL "-lpthread")
 		message(STATUS "Forcing pthread.dll")
 	else()
@@ -301,7 +301,7 @@ if (WIN32)
 	# libobjcxx uses a couple of functions from libobjc, which is expected
 	# to be in the same directory. Otherwise -lobjc links the stock lib.
 	target_link_libraries(objcxx ${CMAKE_BINARY_DIR}/libobjc.dll.a)
-endif (WIN32)
+endif (MINGW)
 
 
 #

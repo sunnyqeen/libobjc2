@@ -3,6 +3,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifdef WIN32
+#include <windows.h>
+#define sleep(n) Sleep((n) * 1000)
+#endif
+
 static int exitStatus = 0;
 
 static void _test(BOOL X, char *expr, int line)

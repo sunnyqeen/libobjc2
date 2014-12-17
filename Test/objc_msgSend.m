@@ -54,11 +54,11 @@ __attribute__((objc_root_class))
 + (void)printf: (const char*)str, ...
 {
 	va_list ap;
-	char *s;
+	char s[256];
 
 	va_start(ap, str);
 
-	vasprintf(&s, str, ap);
+	vsnprintf(s, sizeof(s), str, ap);
 	va_end(ap);
 	//fprintf(stderr, "String: '%s'\n", s);
 	assert(strcmp(s, "Format string 42 42.000000\n") ==0);
