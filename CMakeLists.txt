@@ -234,11 +234,13 @@ if (ENABLE_OBJCXX)
 endif (ENABLE_OBJCXX)
 
 
+
 # Currently, we actually need pthreads, but we should use the platform's native
 # threading implementation (we do for everything except thread-local storage)
 set(CMAKE_THREAD_PREFER_PTHREAD)
 include(FindThreads)
 set(objc_LINK_FLAGS "${objc_LINK_FLAGS} ${CMAKE_THREAD_LIBS_INIT}")
+
 
 
 add_library(objc SHARED ${libobjc_C_SRCS} ${libobjc_ASM_SRCS} ${libobjc_OBJC_SRCS} ${libobjc_CXX_SRCS})
