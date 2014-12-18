@@ -5,16 +5,15 @@
 #define SLOT_OFFSET    16
 
 #define slowMsgLookup CDECL(slowMsgLookup)
+#define SmallObjectClasses CDECL(SmallObjectClasses)
 
 .macro MSGSEND receiver, sel, fpret
 	.cfi_startproc                        
 	movl  \receiver(%esp), %eax
 	test  %eax, %eax                      # If the receiver is nil
 	jz    4f                              # return nil
-#ifndef WIN32
 	test  $SMALLOBJ_MASK, %eax            # Check if the receiver is a small object
 	jnz   6f                              # Get the small object class
-#endif
 
 	mov   (%eax), %eax                    # Load the class
 1:                                        # classLoaded
@@ -79,8 +78,10 @@
 
 
 	jmp   *%eax
-#ifndef WIN32
 6:                                       # smallObject:
+#ifdef WIN32
+	mov   SmallObjectClasses, %eax       # On Win32 there is only one entry
+#else
 	push  %ebx                           # Save old %ebx
 	calll 7f
 7:
@@ -90,8 +91,8 @@
 	leal  SmallObjectClasses@GOTOFF(%ebx), %eax
 	mov   (%eax), %eax
 	popl  %ebx
-	jmp   1b 
 #endif
+	jmp   1b 
 	.cfi_endproc
 .endm
 .globl CDECL(objc_msgSend_fpret)

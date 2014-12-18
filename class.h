@@ -259,13 +259,6 @@ void class_table_insert(Class class);
  * used for storing 31-bit signed integers.  In 64-bit mode then we can have 7,
  * because classes are guaranteed to be word aligned. 
  */
-
-#ifdef WIN32
-
-#define isSmallObject(obj) (NO)
-
-#else
-
 extern Class SmallObjectClasses[7];
 
 static BOOL isSmallObject(id obj)
@@ -274,12 +267,9 @@ static BOOL isSmallObject(id obj)
 	return (addr & OBJC_SMALL_OBJECT_MASK) != 0;
 }
 
-#endif
-
 __attribute__((always_inline))
 static inline Class classForObject(id obj)
 {
-#ifndef WIN32
 	if (UNLIKELY(isSmallObject(obj)))
 	{
 		if (sizeof(Class) == 4)
@@ -292,7 +282,6 @@ static inline Class classForObject(id obj)
 			return SmallObjectClasses[(addr & OBJC_SMALL_OBJECT_MASK)];
 		}
 	}
-#endif
 	return obj->isa;
 }
 

@@ -426,17 +426,6 @@ PRIVATE void objc_load_class(struct objc_class *class)
 	}
 }
 
-#ifdef WIN32
-
-BOOL objc_registerSmallObjectClass_np(Class class, uintptr_t mask)
-{
-	// At the moment we want to avoid complications in objc_msgSend()
-	// TODO:
-	return NO;
-}
-
-#else
-
 PRIVATE Class SmallObjectClasses[7];
 
 BOOL objc_registerSmallObjectClass_np(Class class, uintptr_t mask)
@@ -461,8 +450,6 @@ BOOL objc_registerSmallObjectClass_np(Class class, uintptr_t mask)
 	SmallObjectClasses[mask] = class;
 	return YES;
 }
-
-#endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
