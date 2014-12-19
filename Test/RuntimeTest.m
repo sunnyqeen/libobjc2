@@ -91,7 +91,7 @@ __attribute__((objc_root_class))
 - (id) aBool: (BOOL)d andAnInt: (int) w;
 @end
 
-id exceptionObj = @"Exception";
+id exceptionObj = nil;
 
 @implementation Foo
 - (void) aMethod
@@ -119,7 +119,7 @@ id exceptionObj = @"Exception";
 }
 - (void) throwException
 {
-	@throw exceptionObj;
+	@throw exceptionObj = [Foo new];
 }
 - (BOOL) basicThrowAndCatchException
 {
@@ -148,11 +148,11 @@ id exceptionObj = @"Exception";
 }
 - (id) manyTypes
 {
-  return @"Hello";
+  return nil;
 }
 - (id) aBool: (BOOL)d andAnInt: (int) w
 {
-  return @"Hello";
+  return nil;
 }
 @end
 
