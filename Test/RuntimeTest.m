@@ -5,7 +5,7 @@
 
 #ifdef WIN32
 #include <windows.h>
-#define sleep(n) Sleep((n) * 1000)
+#define sleep(n) (void)(Sleep((n) * 1000))
 #endif
 
 static int exitStatus = 0;
@@ -91,7 +91,7 @@ __attribute__((objc_root_class))
 - (id) aBool: (BOOL)d andAnInt: (int) w;
 @end
 
-id exceptionObj = nil;
+id exceptionObj = @"Exception";
 
 @implementation Foo
 - (void) aMethod
@@ -119,7 +119,7 @@ id exceptionObj = nil;
 }
 - (void) throwException
 {
-	@throw exceptionObj = [Foo new];
+	@throw exceptionObj;
 }
 - (BOOL) basicThrowAndCatchException
 {
@@ -148,11 +148,11 @@ id exceptionObj = nil;
 }
 - (id) manyTypes
 {
-  return nil;
+  return @"Hello";
 }
 - (id) aBool: (BOOL)d andAnInt: (int) w
 {
-  return nil;
+  return @"Hello";
 }
 @end
 
