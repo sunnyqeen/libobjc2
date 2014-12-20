@@ -17,7 +17,6 @@
 #include "visibility.h"
 
 #ifdef WIN32
-#include <errno.h>
 #include <windows.h>
 #else
 #include <sys/mman.h>
@@ -76,12 +75,17 @@ static mutex_t trampoline_lock;
 #define MS_SYNC         2
 #define MS_INVALIDATE   4
 
-static int __map_mman_error(const DWORD err, const int deferr)
+static void mman_fail(const DWORD werr)
 {
-    if (err == 0)
-        return 0;
-    //TODO: implement
-    return err;
+    if (werr == 0)
+        return;
+    LPSTR buf = NULL;
+    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL, werr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buf, 0, NULL);
+	buf[size] = 0;
+	printf("mmap.err=%d %s\n", werr, buf);
+    LocalFree(buf);
+	abort();
 }
 
 static DWORD __map_mmap_prot_page(const int prot)
@@ -151,15 +155,13 @@ void* mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off)
 #pragma warning(pop)
 #endif
 
-    errno = 0;
-    
-    if (len == 0 
+    if (len == 0
         /* Unsupported flag combinations */
         || (flags & MAP_FIXED) != 0
         /* Usupported protection combinations */
         || prot == PROT_EXEC)
     {
-        errno = EINVAL;
+		mman_fail(ERROR_BAD_ARGUMENTS);
         return MAP_FAILED;
     }
     
@@ -168,7 +170,7 @@ void* mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off)
 
     if ((flags & MAP_ANONYMOUS) == 0 && h == INVALID_HANDLE_VALUE)
     {
-        errno = EBADF;
+        mman_fail(ERROR_INVALID_HANDLE);
         return MAP_FAILED;
     }
 
@@ -176,20 +178,20 @@ void* mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off)
 
     if (fm == NULL)
     {
-        errno = __map_mman_error(GetLastError(), EPERM);
+        mman_fail(GetLastError());
         return MAP_FAILED;
     }
   
     map = MapViewOfFile(fm, desiredAccess, dwFileOffsetHigh, dwFileOffsetLow, len);
 
-    CloseHandle(fm);
-  
     if (map == NULL)
     {
-        errno = __map_mman_error(GetLastError(), EPERM);
+        mman_fail(GetLastError());
         return MAP_FAILED;
     }
 
+    CloseHandle(fm);
+  
     return map;
 }
 
@@ -198,7 +200,7 @@ int munmap(void *addr, size_t len)
     if (UnmapViewOfFile(addr))
         return 0;
         
-    errno =  __map_mman_error(GetLastError(), EPERM);
+    mman_fail(GetLastError());
     
     return -1;
 }
@@ -211,7 +213,7 @@ int mprotect(void *addr, size_t len, int prot)
     if (VirtualProtect(addr, len, newProtect, &oldProtect))
         return 0;
     
-    errno =  __map_mman_error(GetLastError(), EPERM);
+    mman_fail(GetLastError());
     
     return -1;
 }
@@ -221,7 +223,7 @@ int msync(void *addr, size_t len, int flags)
     if (FlushViewOfFile(addr, len))
         return 0;
     
-    errno =  __map_mman_error(GetLastError(), EPERM);
+    mman_fail(GetLastError());
     
     return -1;
 }
@@ -231,7 +233,7 @@ int mlock(const void *addr, size_t len)
     if (VirtualLock((LPVOID)addr, len))
         return 0;
         
-    errno =  __map_mman_error(GetLastError(), EPERM);
+    mman_fail(GetLastError());
     
     return -1;
 }
@@ -241,7 +243,7 @@ int munlock(const void *addr, size_t len)
     if (VirtualUnlock((LPVOID)addr, len))
         return 0;
         
-    errno =  __map_mman_error(GetLastError(), EPERM);
+    mman_fail(GetLastError());
     
     return -1;
 }
