@@ -131,7 +131,10 @@ void* mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off)
     HANDLE fm, h;
     
     void * map = MAP_FAILED;
-    
+
+	// For some reason mapping for EXEC fails but works fine with just READ
+	prot &= ~PROT_EXEC;
+
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4293)
