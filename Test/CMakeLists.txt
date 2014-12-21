@@ -43,7 +43,7 @@ function(addtest_flags TEST FLAGS TEST_SOURCE)
 	set_target_properties(${TEST} PROPERTIES
 		INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}"
 		COMPILE_FLAGS "-fobjc-runtime=gnustep-1.7 -fblocks ${FLAGS}"
-		LINKER_LANGUAGE C
+		LINKER_LANGUAGE CXX
 	)
 	if (MINGW)
 		# For newly built DLLs:

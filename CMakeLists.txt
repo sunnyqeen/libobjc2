@@ -209,7 +209,7 @@ if (ENABLE_OBJCXX)
 			message(STATUS "Forcing build of stand-alone libobjcxx")
 			add_library(objcxx SHARED ${libobjcxx_CXX_SRCS})
 			set_target_properties(objcxx PROPERTIES
-				LINKER_LANGUAGE C
+				LINKER_LANGUAGE CXX
 				SOVERSION ${libobjc_VERSION}
 				)
 			target_link_libraries(objcxx ${CXX_RUNTIME})
@@ -225,7 +225,7 @@ if (ENABLE_OBJCXX)
 		message(STATUS "No C++ runtime library found")
 		add_library(objcxx SHARED ${libobjcxx_CXX_SRCS})
 		set_target_properties(objcxx PROPERTIES
-			LINKER_LANGUAGE C
+			LINKER_LANGUAGE CXX
 			SOVERSION ${libobjc_VERSION}
 			)
 		set(CXX_RUNTIME "")
