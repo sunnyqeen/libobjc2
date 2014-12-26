@@ -46,13 +46,14 @@ TEST_EXECS = \
 	$(BUILD_DIR)/RuntimeTest.exe \
 	$(BUILD_DIR)/WeakReferences_arc.exe \
 	$(BUILD_DIR)/objc_msgSend.exe \
-	$(BUILD_DIR)/msgInterpose.exe
+	$(BUILD_DIR)/msgInterpose.exe \
+	$(BUILD_DIR)/CXXException.exe
 
+	# TODO: this test probably has a bug
 	# $(BUILD_DIR)/PropertyIntrospectionTest2.exe \
 
-TEST_LOG = $(BUILD_DIR)/Test.log
 
-# TODO: CXXExceptions
+TEST_LOG = $(BUILD_DIR)/Test.log
 
 
 ### Build Rules
@@ -77,10 +78,13 @@ $(BUILD_DIR): $(DEPS)
 $(OBJ_DIR): $(DEPS)
 	@mkdir -p $(OBJ_DIR)
 
+$(BUILD_DIR)/CXXException.exe: $(OBJ_DIR)/CXXException.m.o $(OBJ_DIR)/CXXException.cc.o $(LIBOBJC) $(DEPS)
+	$(LDXX) $(LDOPT) $< $(OBJ_DIR)/CXXException.cc.o $(LDLIBS) -o $@
+
 $(BUILD_DIR)/%_arc.exe: $(OBJ_DIR)/%_arc.m.o $(OBJ_DIR)/Test.m.o $(LIBOBJC) $(DEPS)
 	$(LD) $(LDOPT) $< $(OBJ_DIR)/Test.m.o $(LDLIBS) -o $@
 
-$(BUILD_DIR)/%.exe: $(OBJ_DIR)/%.m.o $(DEPS)
+$(BUILD_DIR)/%.exe: $(OBJ_DIR)/%.m.o $(LIBOBJC) $(DEPS)
 	$(LD) $(LDOPT) $< $(LDLIBS) -o $@
 
 $(OBJ_DIR)/%.c.o: %.c $(DEPS)
