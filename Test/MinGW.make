@@ -22,7 +22,7 @@ CDEFS =
 CINCDIRS = -I../
 LDOPT = -g
 LDLIBS = -Wl,--whole-archive $(LIBOBJC) -Wl,--no-whole-archive \
-	-lpthread.dll
+	-lpthread
 
 
 ### Product/Build dirs
@@ -41,7 +41,6 @@ TEST_EXECS = \
 	$(BUILD_DIR)/NestedExceptions.exe \
 	$(BUILD_DIR)/PropertyAttributeTest.exe \
 	$(BUILD_DIR)/PropertyIntrospectionTest.exe \
-	$(BUILD_DIR)/PropertyIntrospectionTest2.exe \
 	$(BUILD_DIR)/ProtocolCreation.exe \
 	$(BUILD_DIR)/ResurrectInDealloc_arc.exe \
 	$(BUILD_DIR)/RuntimeTest.exe \
@@ -49,10 +48,16 @@ TEST_EXECS = \
 	$(BUILD_DIR)/objc_msgSend.exe \
 	$(BUILD_DIR)/msgInterpose.exe
 
+	# $(BUILD_DIR)/PropertyIntrospectionTest2.exe \
+
 TEST_LOG = $(BUILD_DIR)/Test.log
 
 # TODO: CXXExceptions
 
+
+### Build Rules
+
+all: $(BUILD_DIR) $(OBJ_DIR) $(TEST_EXECS)
 
 test: all
 	@( \
@@ -65,11 +70,6 @@ test: all
 			echo "**************************************** FAILED"; \
 		fi \
 	done)
-
-
-### Build Rules
-
-all: $(BUILD_DIR) $(OBJ_DIR) $(TEST_EXECS)
 
 $(BUILD_DIR): $(DEPS)
 	@mkdir -p $(BUILD_DIR)
