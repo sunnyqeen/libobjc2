@@ -1,15 +1,12 @@
 
 .SUFFIXES:	.c .cxx .cc .cpp .m .mm .o
 
-DEPS = Makefile
+DEPS = MinGW.mak MinGW.conf
 
 
-### Compilers/Tools
-
-CC = clang
-CXX = clang++
-LD = clang++
-AR = ar cr
+# TODO: on OSX this should set up a cross-compile environment.
+#       Also override a few things for the future 64-bit build.
+include MinGW.conf
 
 
 ### Compiler/Tools options
@@ -26,8 +23,6 @@ AROPT =
 ### Product/Build dirs
 
 PRODUCT_NAME = libobjc
-BUILD_DIR = build
-OBJ_DIR = $(BUILD_DIR)/obj
 PRODUCT = $(BUILD_DIR)/$(PRODUCT_NAME).a
 
 
@@ -69,7 +64,8 @@ OBJS = \
 	$(OBJ_DIR)/associate.m.o \
 	$(OBJ_DIR)/blocks_runtime.m.o \
 	$(OBJ_DIR)/properties.m.o \
-	$(OBJ_DIR)/gc_none.c.o
+	$(OBJ_DIR)/gc_none.c.o \
+	$(OBJ_DIR)/objcxx_eh.cc.o
 
 
 ### Build Rules
@@ -95,6 +91,9 @@ $(OBJ_DIR)/%.S.o: %.S $(DEPS)
 	$(CC) $(COPT) $(CDEFS) $(CINCDIRS) -c $< -o $@
 
 $(OBJ_DIR)/%.mm.o: %.mm $(DEPS)
+	$(CXX) $(COPT) $(CXXOPT) $(CDEFS) $(CINCDIRS) -c $< -o $@
+
+$(OBJ_DIR)/%.cc.o: %.cc $(DEPS)
 	$(CXX) $(COPT) $(CXXOPT) $(CDEFS) $(CINCDIRS) -c $< -o $@
 
 
