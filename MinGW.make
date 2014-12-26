@@ -1,7 +1,8 @@
 
 .SUFFIXES:	.c .cxx .cc .cpp .m .mm .o
+.PHONY:		all clean test install uninstall
 
-DEPS = MinGW.mak MinGW.conf
+DEPS = MinGW.make MinGW.conf
 
 
 # TODO: on OSX this should set up a cross-compile environment.
@@ -11,7 +12,8 @@ include MinGW.conf
 
 ### Compiler/Tools options
 
-COPT = -Wall -Werror -Wno-deprecated-objc-isa-usage -Wno-objc-root-class -Wno-unused-variable
+COPT = -fexceptions -fblocks -fobjc-runtime=gnustep-1.7 -g -O2 \
+	-Wall -Werror -Wno-deprecated-objc-isa-usage -Wno-objc-root-class -Wno-unused-variable
 CXXOPT =
 CDEFS = -DGC_DEBUG -DGNUSTEP -DNO_LEGACY -DTYPE_DEPENDENT_DISPATCH \
 	-D_BSD_SOURCE=1 -D_XOPEN_SOURCE=700 -D__BSD_VISIBLE=1 \
@@ -24,11 +26,6 @@ AROPT =
 
 PRODUCT_NAME = libobjc
 PRODUCT = $(BUILD_DIR)/$(PRODUCT_NAME).a
-
-
-### Chance to override any defaults
-
-include MinGW.conf
 
 
 ### Sources
@@ -97,6 +94,12 @@ $(OBJ_DIR)/%.cc.o: %.cc $(DEPS)
 	$(CXX) $(COPT) $(CXXOPT) $(CDEFS) $(CINCDIRS) -c $< -o $@
 
 
+### Tests
+test: all
+	@cd Test ; make -f MinGW.make test
+
+
 ### Clean
 clean:
 	@rm -f $(PRODUCT) $(OBJ_DIR)/*
+	@cd Test ; make -f MinGW.make clean
