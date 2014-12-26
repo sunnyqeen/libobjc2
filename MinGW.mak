@@ -31,6 +31,11 @@ OBJ_DIR = $(BUILD_DIR)/obj
 PRODUCT = $(BUILD_DIR)/$(PRODUCT_NAME).a
 
 
+### Chance to override any defaults
+
+include MinGW.conf
+
+
 ### Sources
 
 OBJS = \
