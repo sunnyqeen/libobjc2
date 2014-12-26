@@ -14,7 +14,7 @@ AR = ar cr
 
 ### Compiler/Tools options
 
-COPT = -Wno-deprecated-objc-isa-usage -Wno-objc-root-class
+COPT = -Wall -Werror -Wno-deprecated-objc-isa-usage -Wno-objc-root-class -Wno-unused-variable
 CXXOPT =
 CDEFS = -DGC_DEBUG -DGNUSTEP -DNO_LEGACY -DTYPE_DEPENDENT_DISPATCH \
 	-D_BSD_SOURCE=1 -D_XOPEN_SOURCE=700 -D__BSD_VISIBLE=1 \
