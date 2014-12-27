@@ -105,4 +105,5 @@ $(OBJ_DIR)/%.cc.o: %.cc $(DEPS)
 
 ### Clean
 clean:
-	@rm -f $(TEST_EXECS) $(TEST_LOG) $(OBJ_DIR)/*
+	@rm -f $(TEST_EXECS) $(TEST_LOG)
+	@rm -rf $(OBJ_DIR)

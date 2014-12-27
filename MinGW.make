@@ -45,7 +45,6 @@ OBJS = \
 	$(OBJ_DIR)/ivar.c.o \
 	$(OBJ_DIR)/legacy_malloc.c.o \
 	$(OBJ_DIR)/loader.c.o \
-	$(OBJ_DIR)/mutation.m.o \
 	$(OBJ_DIR)/protocol.c.o \
 	$(OBJ_DIR)/runtime.c.o \
 	$(OBJ_DIR)/sarray2.c.o \
@@ -63,6 +62,10 @@ OBJS = \
 	$(OBJ_DIR)/properties.m.o \
 	$(OBJ_DIR)/gc_none.c.o \
 	$(OBJ_DIR)/objcxx_eh.cc.o
+
+	# Because __attribute__((weak)) doesn't work as expected and this
+	# function is defined in gnustep-base anyway.
+	# $(OBJ_DIR)/mutation.m.o
 
 
 ### Build Rules
@@ -101,5 +104,6 @@ test: all
 
 ### Clean
 clean:
-	@rm -f $(PRODUCT) $(OBJ_DIR)/*
+	@rm -f $(PRODUCT)
+	@rm -rf $(OBJ_DIR)
 	@cd Test ; make -f MinGW.make clean
