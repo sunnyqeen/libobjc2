@@ -21,8 +21,11 @@ CXXOPT =
 CDEFS =
 CINCDIRS = -I../
 LDOPT = -g
-LDLIBS = -Wl,--whole-archive $(LIBOBJC) -Wl,--no-whole-archive \
+LDLIBS = -L../build -lobjc \
 	-lpthread
+LDPATH = ../build
+
+# -Wl,--whole-archive $(LIBOBJC) -Wl,--no-whole-archive \
 
 
 ### Product/Build dirs
@@ -65,7 +68,7 @@ test: all
 	rm -f $(TEST_LOG) ; \
 	for i in $(TEST_EXECS) ; do \
 		echo "$$i:" ; \
-		if ./$$i >> $(TEST_LOG) ; then \
+		if PATH=$(LDPATH):$$PATH ./$$i >> $(TEST_LOG) ; then \
 			echo "---------------------------------------- Passed"; \
 		else \
 			echo "**************************************** FAILED"; \

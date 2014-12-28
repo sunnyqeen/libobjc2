@@ -1,6 +1,6 @@
 
 .SUFFIXES:	.c .cxx .cc .cpp .m .mm .o
-.PHONY:		all clean test install uninstall
+.PHONY:		all clean test install uninstall publish
 
 DEPS = MinGW.make MinGW.conf
 
@@ -123,3 +123,8 @@ clean: clean-lib
 
 clean-lib:
 	@rm -f $(PRODUCT_LIB) $(PRODUCT_SO) $(PRODUCT_IMPLIB)
+
+publish:
+	@cp -r objc ../include
+	@cp $(PRODUCT_LIB) $(PRODUCT_IMPLIB) ../lib
+	@cp $(PRODUCT_SO) ../bin
