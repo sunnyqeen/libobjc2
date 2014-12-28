@@ -19,13 +19,20 @@ CDEFS = -DGC_DEBUG -DGNUSTEP -DNO_LEGACY -DTYPE_DEPENDENT_DISPATCH \
 	-D_BSD_SOURCE=1 -D_XOPEN_SOURCE=700 -D__BSD_VISIBLE=1 \
 	-D__OBJC_RUNTIME_INTERNAL__=1 -Dobjc_EXPORTS
 CINCDIRS = -I./
+
 AROPT =
+DLL_OPT = -shared -Wl,--enable-auto-image-base -Wl,--export-all-symbols \
+	-Wl,--enable-auto-import -shared-libgcc
+LDDIRS = -L../lib
+LDLIBS = -lpthread
 
 
 ### Product/Build dirs
 
-PRODUCT_NAME = libobjc
-PRODUCT = $(BUILD_DIR)/$(PRODUCT_NAME).a
+PRODUCT_NAME = objc
+PRODUCT_LIB = $(BUILD_DIR)/lib$(PRODUCT_NAME).a
+PRODUCT_SO = $(BUILD_DIR)/$(PRODUCT_NAME)-1.dll
+PRODUCT_IMPLIB = $(BUILD_DIR)/lib$(PRODUCT_NAME).dll.a
 
 
 ### Sources
@@ -70,7 +77,7 @@ OBJS = \
 
 ### Build Rules
 
-all: $(BUILD_DIR) $(OBJ_DIR) $(PRODUCT)
+all: $(BUILD_DIR) $(OBJ_DIR) $(PRODUCT_LIB) $(PRODUCT_SO)
 
 $(BUILD_DIR): $(DEPS)
 	@mkdir -p $(BUILD_DIR)
@@ -78,8 +85,15 @@ $(BUILD_DIR): $(DEPS)
 $(OBJ_DIR): $(DEPS)
 	@mkdir -p $(OBJ_DIR)
 
-$(PRODUCT): $(OBJS) $(DEPS)
-	$(AR) $(PRODUCT) $(AROPT) $(OBJS)
+$(PRODUCT_LIB): $(OBJS) $(DEPS)
+	$(AR) $(PRODUCT_LIB) $(AROPT) $(OBJS)
+
+$(PRODUCT_SO): $(OBJS) $(DEPS)
+	$(LDXX) \
+		-Wl,--out-implib,$(PRODUCT_IMPLIB) -o $(PRODUCT_SO) \
+		$(DLL_OPT) $(LDDIRS) \
+		$(OBJS) \
+		$(LDLIBS) \
 
 $(OBJ_DIR)/%.c.o: %.c $(DEPS)
 	$(CC) $(COPT) $(CDEFS) $(CINCDIRS) -c $< -o $@
@@ -103,7 +117,9 @@ test: all
 
 
 ### Clean
-clean:
-	@rm -f $(PRODUCT)
+clean: clean-lib
 	@rm -rf $(OBJ_DIR)
 	@cd Test ; make -f MinGW.make clean
+
+clean-lib:
+	@rm -f $(PRODUCT_LIB) $(PRODUCT_SO) $(PRODUCT_IMPLIB)
