@@ -1,6 +1,6 @@
 
 .SUFFIXES:	.c .cxx .cc .cpp .m .mm .o
-.PHONY:		all clean test install uninstall publish
+.PHONY:		all clean clean-lib test check install uninstall publish
 
 DEPS = MinGW.make MinGW.conf
 
