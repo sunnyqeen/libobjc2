@@ -287,24 +287,10 @@ if (APPLE)
 endif ()
 
 if (MINGW)
-	if (CMAKE_THREAD_LIBS_INIT STREQUAL "-lpthread")
-		message(STATUS "Forcing pthread.dll")
-	else()
-		message(FATAL_ERROR "Requires package `mingw32-pthreads-w32`")
-	endif()
-	set(FORCE_PTHREAD_DLL "pthread.dll")
-	# Note: if you omit '-l' below, cmake will strip the extension (.dll)
-	# which is critical in this case: we are linking pthread.dll.a. Also note
-	# somehow the order of libs is important for clang, so adding pthread to
-	# link flags doesn't do the job for some reason.
-	target_link_libraries(objc "-l${FORCE_PTHREAD_DLL}")
-	target_link_libraries(objcxx "-l${FORCE_PTHREAD_DLL}")
-
-	# libobjcxx uses a couple of functions from libobjc, which is expected
-	# to be in the same directory. Otherwise -lobjc links the stock lib.
+	# Ordering of libs matters on Windows/MinGW
+	target_link_libraries(objc ${CMAKE_THREAD_LIBS_INIT})
 	target_link_libraries(objcxx ${CMAKE_BINARY_DIR}/libobjc.dll.a)
 endif (MINGW)
-
 
 #
 # Installation

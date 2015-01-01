@@ -506,18 +506,12 @@ BEGIN_PERSONALITY_FUNCTION(__gnustep_objcxx_personality_v0)
 }
 #endif
 
-#ifdef WIN32
-#  define WEAK extern
-#else
-#  define WEAK __attribute__((weak))
-#endif
-
 // Weak references to C++ runtime functions.  We don't bother testing that
 // these are 0 before calling them, because if they are not resolved then we
 // should not be in a code path that involves a C++ exception.
-WEAK void *__cxa_begin_catch(void *e);
-WEAK void __cxa_end_catch(void);
-WEAK void __cxa_rethrow(void);
+__attribute__((weak)) void *__cxa_begin_catch(void *e);
+__attribute__((weak)) void __cxa_end_catch(void);
+__attribute__((weak)) void __cxa_rethrow(void);
 
 enum exception_type
 {
