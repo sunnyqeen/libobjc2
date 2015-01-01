@@ -6,7 +6,7 @@
 
 #ifndef __LIBOBJC_LOCK_H_INCLUDED__
 #define __LIBOBJC_LOCK_H_INCLUDED__
-#ifdef WIN32
+#ifdef _WIN32
 #define BOOL _WINBOOL
 #	include <windows.h>
 #undef BOOL

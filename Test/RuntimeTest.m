@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #define sleep(n) (void)(Sleep((n) * 1000))
 #endif

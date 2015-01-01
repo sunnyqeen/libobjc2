@@ -16,7 +16,7 @@
 #include "lock.h"
 #include "visibility.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #else
 #include <sys/mman.h>
@@ -46,7 +46,7 @@ static ptrdiff_t offset;
 static mutex_t trampoline_lock;
 
 
-#ifdef WIN32
+#ifdef _WIN32
 
 static void initTmpFile(void) {}
 
@@ -82,7 +82,7 @@ static int getAnonMemFd(void)
 }
 #endif
 
-#endif // WIN32
+#endif // _WIN32
 
 
 struct wx_buffer
@@ -102,7 +102,7 @@ static struct wx_buffer alloc_buffer(size_t size)
 	LOCK_FOR_SCOPE(&trampoline_lock);
 	if ((0 == offset) || (offset + size >= PAGE_SIZE))
 	{
-#ifdef WIN32
+#ifdef _WIN32
 		void* w = VirtualAllocEx(GetCurrentProcess(), 0, PAGE_SIZE, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 		if (w == NULL)
 			abort();

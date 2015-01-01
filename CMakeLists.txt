@@ -291,6 +291,16 @@ if (MINGW)
 	target_link_libraries(objc ${CMAKE_THREAD_LIBS_INIT})
 	target_link_libraries(objc "psapi")
 	target_link_libraries(objcxx ${CMAKE_BINARY_DIR}/libobjc.dll.a)
+
+	# OS_BUILD comes from the environment or the command line, i.e. 
+	# cmake .. -DOS_BUILD=64 <...>
+	# TODO: make sure the toolchain is 64-bit in this case
+	if (OS_BUILD STREQUAL 64)
+		message(STATUS "MinGW 64-bit build")
+		set(CMAKE_C_FLAGS "-m64 ${CMAKE_C_FLAGS}")
+		set(CMAKE_CXX_FLAGS "-m64 ${CMAKE_CXX_FLAGS}")
+		set(CMAKE_ASM_FLAGS "-m64 ${CMAKE_ASM_FLAGS}")
+	endif ()
 endif (MINGW)
 
 #

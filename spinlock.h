@@ -1,13 +1,4 @@
-#ifdef __MINGW32__
-#include <windows.h>
-static unsigned sleep(unsigned seconds)
-{
-	Sleep(seconds*1000);
-	return 0;
-}
-#else
 #include <unistd.h>
-#endif
 
 /**
  * Number of spinlocks.  This allocates one page on 32-bit platforms.

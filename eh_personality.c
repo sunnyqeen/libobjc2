@@ -11,8 +11,8 @@
 #include <pthread.h>
 #endif
 
-#ifdef WIN32
-#define __OBJC__ // fix the BOOL conflict (works with MinGW only)
+#ifdef _WIN32
+#define _NO_BOOL_TYPEDEF // MinGW hack
 #include "windows.h"
 #include "psapi.h"
 #endif
@@ -513,7 +513,7 @@ BEGIN_PERSONALITY_FUNCTION(__gnustep_objcxx_personality_v0)
 #endif
 
 
-#ifdef WIN32
+#ifdef _WIN32
 
 // Weak refs don't work on Windows the same way as with ELF, so:
 
@@ -543,7 +543,7 @@ static void resolve_cxa_syms()
 	}
 }
 
-#else // WIN32
+#else // _WIN32
 
 // Weak references to C++ runtime functions.  We don't bother testing that
 // these are 0 before calling them, because if they are not resolved then we
@@ -555,7 +555,7 @@ __attribute__((weak)) void __cxa_rethrow(void);
 #define weak__cxa_end_catch __cxa_end_catch
 #define weak__cxa_rethrow __cxa_rethrow
 
-#endif // WIN32
+#endif // _WIN32
 
 enum exception_type
 {
@@ -663,7 +663,7 @@ id objc_begin_catch(struct _Unwind_Exception *exceptionObject)
 	{
 		DEBUG_LOG("c++ catch\n");
 		td->current_exception_type = CXX;
-#ifdef WIN32
+#ifdef _WIN32
 		if (!weak__cxa_begin_catch)
 			resolve_cxa_syms();
 #endif

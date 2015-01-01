@@ -9,7 +9,7 @@ extern "C"
 #include "objc/runtime.h"
 };
 
-#if defined (WIN32) || defined(__APPLE__)
+#if defined (_WIN32) || defined(__APPLE__)
 #include <typeinfo>
 #else
 
