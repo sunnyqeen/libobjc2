@@ -289,6 +289,7 @@ endif ()
 if (MINGW)
 	# Ordering of libs matters on Windows/MinGW
 	target_link_libraries(objc ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(objc "psapi")
 	target_link_libraries(objcxx ${CMAKE_BINARY_DIR}/libobjc.dll.a)
 endif (MINGW)
 

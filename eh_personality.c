@@ -11,6 +11,12 @@
 #include <pthread.h>
 #endif
 
+#ifdef WIN32
+#define __OBJC__ // fix the BOOL conflict (works with MinGW only)
+#include "windows.h"
+#include "psapi.h"
+#endif
+
 #ifndef DEBUG_EXCEPTIONS
 #define DEBUG_LOG(...)
 #else
@@ -506,12 +512,50 @@ BEGIN_PERSONALITY_FUNCTION(__gnustep_objcxx_personality_v0)
 }
 #endif
 
+
+#ifdef WIN32
+
+// Weak refs don't work on Windows the same way as with ELF, so:
+
+void *(*weak__cxa_begin_catch)(void *e);
+void (*weak__cxa_end_catch)(void);
+void (*weak__cxa_rethrow)(void);
+
+static void resolve_cxa_syms()
+{
+	HMODULE hmods[256 * sizeof(HMODULE)];
+	DWORD hmodCount;
+	if(!EnumProcessModules(GetCurrentProcess(), hmods, sizeof(hmods), &hmodCount))
+		abort();
+	for (int i = 0; i < (hmodCount / sizeof(HMODULE)); i++)
+	{
+		weak__cxa_begin_catch = (void*)GetProcAddress(hmods[i], TEXT("__cxa_begin_catch"));
+		if (weak__cxa_begin_catch)
+		{
+#ifdef DEBUG_EXCEPTIONS
+			TCHAR name[MAX_PATH];
+			GetModuleFileName(hmods[i], name, sizeof(name));
+			printf("Resolving __cxa_* from module %s\n", name);
+#endif
+			weak__cxa_end_catch = (void*)GetProcAddress(hmods[i], TEXT("__cxa_end_catch"));
+			weak__cxa_rethrow = (void*)GetProcAddress(hmods[i], TEXT("__cxa_rethrow"));
+		}
+	}
+}
+
+#else // WIN32
+
 // Weak references to C++ runtime functions.  We don't bother testing that
 // these are 0 before calling them, because if they are not resolved then we
 // should not be in a code path that involves a C++ exception.
 __attribute__((weak)) void *__cxa_begin_catch(void *e);
 __attribute__((weak)) void __cxa_end_catch(void);
 __attribute__((weak)) void __cxa_rethrow(void);
+#define weak__cxa_begin_catch __cxa_begin_catch
+#define weak__cxa_end_catch __cxa_end_catch
+#define weak__cxa_rethrow __cxa_rethrow
+
+#endif // WIN32
 
 enum exception_type
 {
@@ -619,7 +663,11 @@ id objc_begin_catch(struct _Unwind_Exception *exceptionObject)
 	{
 		DEBUG_LOG("c++ catch\n");
 		td->current_exception_type = CXX;
-		return __cxa_begin_catch(exceptionObject);
+#ifdef WIN32
+		if (!weak__cxa_begin_catch)
+			resolve_cxa_syms();
+#endif
+		return weak__cxa_begin_catch(exceptionObject);
 	}
 	DEBUG_LOG("foreign exception catch\n");
 	// Box if we have a boxing function.
@@ -659,7 +707,7 @@ void objc_end_catch(void)
 	// If this is a C++ exception, then just let the C++ runtime handle it.
 	if (td->current_exception_type == CXX)
 	{
-		__cxa_end_catch();
+		weak__cxa_end_catch();
 		td->current_exception_type = OBJC;
 		return;
 	}
@@ -714,7 +762,7 @@ void objc_exception_rethrow(struct _Unwind_Exception *e)
 	else if (td->current_exception_type == CXX)
 	{
 		assert(e->exception_class == cxx_exception_class);
-		__cxa_rethrow();
+		weak__cxa_rethrow();
 	}
 	if (td->current_exception_type == BOXED_FOREIGN)
 	{
