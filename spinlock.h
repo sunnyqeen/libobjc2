@@ -1,10 +1,7 @@
-#ifdef __MINGW32__
+
+#ifdef _WIN32
 #include <windows.h>
-static unsigned sleep(unsigned seconds)
-{
-	Sleep(seconds*1000);
-	return 0;
-}
+#define sleep(n) (void)(Sleep((n) * 1000))
 #else
 #include <unistd.h>
 #endif

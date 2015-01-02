@@ -3,6 +3,11 @@
 #include <string.h>
 #include <unistd.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#define sleep(n) (void)(Sleep((n) * 1000))
+#endif
+
 static int exitStatus = 0;
 
 static void _test(BOOL X, char *expr, int line)
@@ -86,7 +91,7 @@ __attribute__((objc_root_class))
 - (id) aBool: (BOOL)d andAnInt: (int) w;
 @end
 
-id exceptionObj = @"Exception";
+id exceptionObj;
 
 @implementation Foo
 - (void) aMethod
@@ -143,11 +148,11 @@ id exceptionObj = @"Exception";
 }
 - (id) manyTypes
 {
-  return @"Hello";
+  return nil;
 }
 - (id) aBool: (BOOL)d andAnInt: (int) w
 {
-  return @"Hello";
+  return nil;
 }
 @end
 
@@ -322,6 +327,8 @@ static int initCount;
 
 int main (int argc, const char * argv[])
 {
+  exceptionObj = [Foo new];
+
   testInvalidArguments();
   testGetMethod();
   testProtocols();

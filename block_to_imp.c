@@ -10,12 +10,17 @@
 #include <ctype.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/mman.h>
 #include "objc/runtime.h"
 #include "objc/blocks_runtime.h"
 #include "blocks_runtime.h"
 #include "lock.h"
 #include "visibility.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <sys/mman.h>
+#endif
 
 #ifndef __has_builtin
 #define __has_builtin(x) 0
@@ -39,6 +44,14 @@ static void *executeBuffer;
 static void *writeBuffer;
 static ptrdiff_t offset;
 static mutex_t trampoline_lock;
+
+
+#ifdef _WIN32
+
+static void initTmpFile(void) {}
+
+#else
+
 #ifndef SHM_ANON
 static char *tmpPattern;
 static void initTmpFile(void)
@@ -69,6 +82,9 @@ static int getAnonMemFd(void)
 }
 #endif
 
+#endif // _WIN32
+
+
 struct wx_buffer
 {
 	void *w;
@@ -86,10 +102,17 @@ static struct wx_buffer alloc_buffer(size_t size)
 	LOCK_FOR_SCOPE(&trampoline_lock);
 	if ((0 == offset) || (offset + size >= PAGE_SIZE))
 	{
+#ifdef _WIN32
+		void* w = VirtualAllocEx(GetCurrentProcess(), 0, PAGE_SIZE, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		if (w == NULL)
+			abort();
+		executeBuffer = w;
+#else
 		int fd = getAnonMemFd();
 		ftruncate(fd, PAGE_SIZE);
 		void *w = mmap(NULL, PAGE_SIZE, PROT_WRITE, MAP_SHARED, fd, 0);
 		executeBuffer = mmap(NULL, PAGE_SIZE, PROT_READ|PROT_EXEC, MAP_SHARED, fd, 0);
+#endif
 		*((void**)w) = writeBuffer;
 		writeBuffer = w;
 		offset = sizeof(void*);

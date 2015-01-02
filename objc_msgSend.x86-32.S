@@ -3,6 +3,10 @@
 #define SHIFT_OFFSET   4
 #define DATA_OFFSET    12
 #define SLOT_OFFSET    16
+
+#define slowMsgLookup CDECL(slowMsgLookup)
+#define SmallObjectClasses CDECL(SmallObjectClasses)
+
 .macro MSGSEND receiver, sel, fpret
 	.cfi_startproc                        
 	movl  \receiver(%esp), %eax
@@ -66,15 +70,25 @@
 	mov   \sel(%esp), %ecx
 	lea   \receiver(%esp), %eax
 
+#ifdef __APPLE__
+	subl  $4, %esp                       # stack alignment: ret, pad, cmd, self
+#endif
 	push  %ecx                           # _cmd
 	push  %eax                           # &self
 	.cfi_def_cfa_offset 12
 	call  slowMsgLookup@PLT
+#ifdef __APPLE__
+	add   $12, %esp                      # restore the stack
+#else
 	add   $8, %esp                       # restore the stack
+#endif
 
 
 	jmp   *%eax
 6:                                       # smallObject:
+#if defined(WIN32) || defined(__APPLE__)
+	mov   SmallObjectClasses, %eax       # On 32-bit systems there is only one entry
+#else
 	push  %ebx                           # Save old %ebx
 	calll 7f
 7:
@@ -84,6 +98,7 @@
 	leal  SmallObjectClasses@GOTOFF(%ebx), %eax
 	mov   (%eax), %eax
 	popl  %ebx
+#endif
 	jmp   1b 
 	.cfi_endproc
 .endm

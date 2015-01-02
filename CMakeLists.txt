@@ -209,7 +209,7 @@ if (ENABLE_OBJCXX)
 			message(STATUS "Forcing build of stand-alone libobjcxx")
 			add_library(objcxx SHARED ${libobjcxx_CXX_SRCS})
 			set_target_properties(objcxx PROPERTIES
-				LINKER_LANGUAGE C
+				LINKER_LANGUAGE CXX
 				SOVERSION ${libobjc_VERSION}
 				)
 			target_link_libraries(objcxx ${CXX_RUNTIME})
@@ -225,7 +225,7 @@ if (ENABLE_OBJCXX)
 		message(STATUS "No C++ runtime library found")
 		add_library(objcxx SHARED ${libobjcxx_CXX_SRCS})
 		set_target_properties(objcxx PROPERTIES
-			LINKER_LANGUAGE C
+			LINKER_LANGUAGE CXX
 			SOVERSION ${libobjc_VERSION}
 			)
 		set(CXX_RUNTIME "")
@@ -285,6 +285,23 @@ if (APPLE)
 	set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -Wl,-undefined,dynamic_lookup")
 	set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -Wl,-undefined,dynamic_lookup")
 endif ()
+
+if (MINGW)
+	# Ordering of libs matters on Windows/MinGW
+	target_link_libraries(objc ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(objc "psapi")
+	target_link_libraries(objcxx ${CMAKE_BINARY_DIR}/libobjc.dll.a)
+
+	# OS_BUILD comes from the environment or the command line, i.e. 
+	# cmake .. -DOS_BUILD=64 <...>
+	# TODO: make sure the toolchain is 64-bit in this case
+	if (OS_BUILD STREQUAL 64)
+		message(STATUS "MinGW 64-bit build")
+		set(CMAKE_C_FLAGS "-m64 ${CMAKE_C_FLAGS}")
+		set(CMAKE_CXX_FLAGS "-m64 ${CMAKE_CXX_FLAGS}")
+		set(CMAKE_ASM_FLAGS "-m64 ${CMAKE_ASM_FLAGS}")
+	endif ()
+endif (MINGW)
 
 #
 # Installation

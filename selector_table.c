@@ -4,6 +4,11 @@
  * When building, you may define TYPE_DEPENDENT_DISPATCH to enable message
  * sends to depend on their types.
  */
+
+#ifdef _WIN32
+#define _NO_BOOL_TYPEDEF // MinGW64 hack
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>

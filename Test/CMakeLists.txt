@@ -43,11 +43,20 @@ function(addtest_flags TEST FLAGS TEST_SOURCE)
 	set_target_properties(${TEST} PROPERTIES
 		INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}"
 		COMPILE_FLAGS "-fobjc-runtime=gnustep-1.7 -fblocks ${FLAGS}"
-		LINKER_LANGUAGE C
+		LINKER_LANGUAGE CXX
 	)
-	set_property(TEST ${TEST} PROPERTY
-		ENVIRONMENT "LD_LIBRARY_PATH="
-	)
+	if (MINGW)
+		# For newly built DLLs:
+		set(path_value "$ENV{PATH};${CMAKE_BINARY_DIR}")
+		string(REPLACE ";" "\\;" path_value "${path_value}")
+		set_property(TEST ${TEST} PROPERTY
+			ENVIRONMENT "PATH=${path_value}"
+		)
+	else (MINGW)
+		set_property(TEST ${TEST} PROPERTY
+			ENVIRONMENT "LD_LIBRARY_PATH="
+		)
+	endif (MINGW)
 	target_link_libraries(${TEST} objc)
 endfunction(addtest_flags)
 

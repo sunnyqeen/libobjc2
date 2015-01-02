@@ -8,6 +8,11 @@ extern "C"
 {
 #include "objc/runtime.h"
 };
+
+#if defined (_WIN32) || defined(__APPLE__)
+#include <typeinfo>
+#else
+
 namespace __cxxabiv1
 {
 	struct __class_type_info;
@@ -48,6 +53,7 @@ namespace std
 				                void **thrown_object) const;
 	};
 }
+#endif
 
 using namespace std;
 
