@@ -1,4 +1,10 @@
+
+#ifdef _WIN32
+#include <windows.h>
+#define sleep(n) (void)(Sleep((n) * 1000))
+#else
 #include <unistd.h>
+#endif
 
 /**
  * Number of spinlocks.  This allocates one page on 32-bit platforms.

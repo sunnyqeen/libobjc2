@@ -12,7 +12,7 @@
 #endif
 
 #ifdef _WIN32
-#define _NO_BOOL_TYPEDEF // MinGW hack
+#define __OBJC__ // MinGW32 hack to fix the BOOL conflict
 #include "windows.h"
 #include "psapi.h"
 #endif

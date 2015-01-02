@@ -6,7 +6,7 @@
  */
 
 #ifdef _WIN32
-#define _NO_BOOL_TYPEDEF // MinGW hack
+#define _NO_BOOL_TYPEDEF // MinGW64 hack
 #endif
 
 #include <string.h>
